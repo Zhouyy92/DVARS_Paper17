@@ -1,13 +1,52 @@
+% This script produce Figure 4.
+%
+% NB! the two subjects which were used on the table are 8th and 6th element
+% of the SubList below. 
+%
+% SA, UoW, 2017
+% srafyouni@gmail.com 
+%
+%%%REFERENCES
+%
+%   Afyouni S. & Nichols T.E., Insights and inference for DVARS, 2017
+%   http://www.biorxiv.org/content/early/2017/04/06/125021.1  
+%
+%   SA, UoW, 2017
+%   srafyouni@gmail.com
+%
+
 clear
+
+%Addpath /AuxDraw available on the same repository
+addpath ~/DVARS_Paper17/AuxDraw
+addpath ~/DVARS_Paper17/AuxDraw/concentricplots
 
 Site={'HCP'};
 SubList={'100307','103414','105115','111312','113619','115320','117122','118730','123117','151526','187345','303624','132118','901139','171330','263436','191336','779370','195041','145127','172029'};
+
+
+%We used subject 115320 and 118730 (6th and 8th elements, repectively).
+% Therefore, you have to choose between either 6 or 8. However, the plot is
+% reproducible for all other subjects as long as you produce the
+% HCP_Council files for them.
 s=SubList{6}; %8 and 6
-%118730
+
+%Choose which stage of the pre-processing you are intrested in. Choose
+%between 'Pre_Fix' and 'Post_Fix'. NB that by default the last sub-plot of
+%the figure is the step further of the pre-processing under study! In other
+%words, if you choose Pre_Fix, the last sub-plot is results of the
+%Post_Fix.
 m={'Pre_Fix'}; %Post_Fix Pre_Fix
 
+% You can see the results of different testing techniques. 
+% X2_m3d3: Chi-squared stat, empirical median, 1/3 power transfo on var
+% X2_m3d1: Chi-squared stat, empirical median, no power transfo on var
+% X2_m1d3: Chi-squared stat, mean as \mu^D_0, 1/3 power transfo on var
+% Z      : Use the good old Z stats!
 TestMeth={'X2_m3d3'}; %'X2_m3d1' 'X2_m1d1' 'Z'
 
+%If you want to save the figures, set saveflag to 1. Only do this when you
+%have export_fig already in your Matlab path 
 saveflag=0;
 
 %#####################################################
@@ -44,7 +83,6 @@ Idx=find(pvals<(0.05./(T-1)));
 
 diffpNDVARS=(V.Dvar_ts-median(V.Dvar_ts))/mean(V.Avar_ts)*100;
 
-addpath /Users/sorooshafyouni/Home/DVARS/fMRIDiag/HCP/AuxDraw
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 alevel=0.05/T;
@@ -270,7 +308,6 @@ hold on; box on; axis off;
 
 %aa=suptitle([Site{1} '-' num2str(s) '-' m{1}]);
 %aa.Interpreter='none';
-addpath /Users/sorooshafyouni/Home/DVARS/concentricplots
 %spa4=subplot(1,2,1);
 %hold on; box on; axis off;
 title('Global Var \%A$_{Gt}$','interpreter','latex','fontsize',lfts)

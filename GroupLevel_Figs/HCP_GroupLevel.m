@@ -1,4 +1,25 @@
-clear; close all;
+% This function was used to produce Figure 7.
+%
+% NB! You have to run HCP_Council.m for all 20/21 subjects beforehand and
+% save the results. The results for all 21 HCP subjects are available to be
+% shared upon request at srafyouni@gmail.com
+%
+% 
+%
+% SA, UoW, 2017
+% srafyouni@gmail.com 
+%
+%%%REFERENCES
+%
+%   Afyouni S. & Nichols T.E., Insights and inference for DVARS, 2017
+%   http://www.biorxiv.org/content/early/2017/04/06/125021.1  
+%
+%   SA, UoW, 2017
+%   srafyouni@gmail.com
+%
+
+clear; 
+%close all;
 
 Site={'HCP'};
 
@@ -7,16 +28,20 @@ PPLine={''};
 %ModeList={'Unproc','Pre_Fix','Post_Fix'};
 ModeList={'Unproc','Pre_Fix','Post_Fix'};
 
-%21 Healthy 
+%21 Healthy
 SubList={'100307','103414','105115','111312','113619','115320','117122','118730','123117','151526','187345','303624','132118','901139','171330','263436','191336','779370','195041','145127','172029'};
 %SubList={'118730'};%,'115320'};%,'118730'};
 GSRStat={'noglobal'}; %%BE CAREFULLLLL****************
 
+% You need to clone the DVARS directory:
+% https://github.com/asoroosh/DVARS.git
+% and addpath the directory (+ subfolders)
+
+%addpath ~/DVARS/
+%addpath ~/DVARS/Nifti_Util
+
 lw=2;
 lfs=14;
-
-addpath /Users/sorooshafyouni/Home/DVARS/fMRIDiag/QC
-addpath /Users/sorooshafyouni/Home/DVARS/fMRIDiag/QC/Nifti_Util
 
 m_cnt = 1;
 for m = ModeList
