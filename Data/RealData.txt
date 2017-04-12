@@ -4,3 +4,4 @@ You need three versions of two HCP subjects, 115320 and 118730:
 2) Volumes/CIFTI of minimally pre-processed data (choose pre-processed)
 3) Volumes/CIFTI of fully pre-processed data (conventionally called ICA-FIX)
 
+NB each version is more than 4GB. So you, at least, need 12GB of free space.
