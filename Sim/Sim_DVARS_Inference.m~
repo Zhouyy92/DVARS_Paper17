@@ -1,24 +1,10 @@
 function Sim_DVARS_Inference(nRlz,T_Idx,SD_idx)
-% This function is to compute the first two moments of DVARS2 and is called
-% from the WorkBench on a multi-processor cluster for more than 1,000 for
-% each combination of TT and SDrng_List (3x4=12).
+% This function is to compute the first two moments of DVARS2 and is
 %
-%%%EXAMPLE
 %
-%  % This produce (and saves) 10e2 realisation of a DVARS2 of 90e3 timeseries of size 200
-%  % with high level of variance hetrogeniety.
 %
-%  Sim_DVARS_Inference(10e2,2,3) 
 %
-%%%REFERENCES
 %
-%   Afyouni S. & Nichols T.E., Insights and inference for DVARS, 2017
-%   http://www.biorxiv.org/content/early/2017/04/06/125021.1  
-%
-%   SA, UoW, 2017
-%   srafyouni@gmail.com
-%
-
 % TT=[100,300,500,1200]; :: T_Idx
 % SDrng_List=[200 200; 200 250; 200 500]; :: SD_idx
 

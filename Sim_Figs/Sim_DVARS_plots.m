@@ -1,3 +1,15 @@
+%
+% This file re-produce Fig 2 and 3 of the paper out of Sim_DVARS_Results.m
+% files. 
+%
+%%%REFERENCES
+%
+%   Afyouni S. & Nichols T.E., Insights and inference for DVARS, 2017
+%   http://www.biorxiv.org/content/early/2017/04/06/125021.1  
+%
+%   SA, UoW, 2017
+%   srafyouni@gmail.com
+%
 clear
 
 

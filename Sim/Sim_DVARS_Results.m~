@@ -1,6 +1,5 @@
 %
-% This function produce test statistics out of the simulated moments
-% already computed via Sim_DVARS_Inference.m function. 
+% This function produce test statistics out of the msimulated
 %
 %
 %%%REFERENCES

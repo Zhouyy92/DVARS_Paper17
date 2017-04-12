@@ -11,8 +11,20 @@
 %               DSEvars.m
 %               FDCalc.m
 %               MovPartextImport.m %pretty useless though, alt can be used
-%               
-%               
+%
+%               These files can be found in https://github.com/asoroosh/DVARS
+%
+%%%NOTE:
+%       Results of this file for 115320 can be found here:
+%       https://github.com/asoroosh/DVARS_Paper17/tree/master/Data/HCP_115320_fMRIDiag
+%
+%       And likewise for 118730:
+%       https://github.com/asoroosh/DVARS_Paper17/tree/master/Data/HCP_118730_fMRIDiag
+%
+%%%REFERENCES
+%
+%   Afyouni S. & Nichols T.E., Insights and inference for DVARS, 2017
+%   http://www.biorxiv.org/content/early/2017/04/06/125021.1               
 %
 % SA, 2017, UoW
 % srafyouni@gmail.com
@@ -34,8 +46,16 @@ GSRStatList={'noglobal'}; %%BE CAREFULLLLL****************
 SubList={'115320'};%,'115320'};%,'118730'}; %of interests
 
 %------- C.addpaths ----------------
-addpath /Users/sorooshafyouni/Home/DVARS/fMRIDiag/QC
-addpath /Users/sorooshafyouni/Home/DVARS/fMRIDiag/QC/Nifti_Util
+% You need to clone the DVARS directory:
+% https://github.com/asoroosh/DVARS.git
+% and addpath the directory (+ subfolders)
+
+%addpath ~/DVARS/
+%addpath ~/DVARS/Nifti_Util
+
+%Change this path to the path of the directory where you store your HCP
+%data. 
+rt='/Volumes/HCP_S900/HCP_10Unrel_Vols/';
 
 for GSRSFlga=GSRStatList
     for s=SubList
@@ -47,11 +67,11 @@ for GSRSFlga=GSRStatList
             if exist(output_dir,'dir')~=7; mkdir(output_dir); end;
 
             if strcmp(m,'Pre_Fix')
-                OneSub=['/Volumes/HCP_S900/HCP_10Unrel_Vols/' s{1} '/rfMRI_REST1_LR.nii.gz'];
+                OneSub=[rt '/rfMRI_REST1_LR.nii.gz']; %Minimally Pre-processed
             elseif strcmp(m,'Post_Fix')
-                OneSub=['/Volumes/HCP_S900/HCP_10Unrel_Vols/' s{1} '/rfMRI_REST1_LR_hp2000_clean.nii.gz'];
+                OneSub=[rt '/rfMRI_REST1_LR_hp2000_clean.nii.gz']; %Fully pre-processed
             elseif strcmp(m,'Unproc')
-                OneSub=['/Volumes/HCP_S900/HCP_10Unrel_Vols/' s{1} '/' s{1} '_3T_rfMRI_REST1_LR_Brain.nii.gz'];
+                OneSub=[rt  s{1} '_3T_rfMRI_REST1_LR_Brain.nii.gz']; %RAW
             end
 
             if strcmpi(GSRSFlga{1},'global')
@@ -71,7 +91,10 @@ for GSRSFlga=GSRStatList
             Y  = reshape(V2,[I0,T0]); clear V2 V1; 
             %
             %-----------------------------------E.FD-----------------------
-            MovPar=MovPartextImport(['/Volumes/HCP_S900/HCP_10Unrel_Vols/' s{1} '/' s{1} '/MNINonLinear/Results/rfMRI_REST1_LR/Movement_Regressors.txt']);
+            % Change this to path of where you keep your
+            % Movement_Regressors.txt files
+            Path_to_Movement_Reg = ['/Volumes/HCP_S900/HCP_10Unrel_Vols/' s{1} '/' s{1} '/MNINonLinear/Results/rfMRI_REST1_LR/Movement_Regressors.txt'];
+            MovPar=MovPartextImport(Path_to_Movement_Reg);
             
             [FDts,FD_Stat]=FDCalc(MovPar);
             
@@ -84,15 +107,19 @@ for GSRSFlga=GSRStatList
             end
             
             %------------------------------F.Var and Inf---------------------
+            
+            %DSE Variance decomposition
             [V,DSE_Stat]=DSEvars(Y, 'gsrflag',gsrflag, InstyNrm{1},InstyNrm{2} ,'verbose',1);
 
-            [DVARS_X2_m1d3, DVARS_Stat_X2_m1d3] = DVARSCalc(Y,'TestMeth','X2' , 'WhichExpVal',1 , 'TransPower',1/3, 'VarRobIQR','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1 ,'nflag',0);
-            [DVARS_X2_m1d1, DVARS_Stat_X2_m1d1] = DVARSCalc(Y,'TestMeth','X2' , 'WhichExpVal',1 , 'TransPower',1  , 'VarRobIQR','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1 ,'nflag',0);
+            %Different test combinations 
+            [DVARS_X2_m1d3, DVARS_Stat_X2_m1d3] = DVARSCalc(Y,'TestMethod','X2' , 'MeanType',1 , 'TransPower',1/3, 'VarType','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1);
+            [DVARS_X2_m1d1, DVARS_Stat_X2_m1d1] = DVARSCalc(Y,'TestMethod','X2' , 'MeanType',1 , 'TransPower',1  , 'VarType','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1);
             
-            [DVARS_X2_m3d3, DVARS_Stat_X2_m3d3] = DVARSCalc(Y,'TestMeth','X2' , 'WhichExpVal',3 , 'TransPower',1/3, 'VarRobIQR','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1 ,'nflag',0);
-            [DVARS_X2_m3d1, DVARS_Stat_X2_m3d1] = DVARSCalc(Y,'TestMeth','X2' , 'WhichExpVal',3 , 'TransPower',1  , 'VarRobIQR','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1 ,'nflag',0);            
+            [DVARS_X2_m3d3, DVARS_Stat_X2_m3d3] = DVARSCalc(Y,'TestMethod','X2' , 'MeanType',3 , 'TransPower',1/3, 'VarType','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1);
+            [DVARS_X2_m3d1, DVARS_Stat_X2_m3d1] = DVARSCalc(Y,'TestMethod','X2' , 'MeanType',3 , 'TransPower',1  , 'VarType','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1);            
             
-            [DVARS_Z   , DVARS_Stat_Z   ] = DVARSCalc(Y,'TestMeth','Z'  , 'WhichExpVal',3 , 'TransPower',1  , 'VarRobIQR','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1 ,'nflag',1);
+            %This one does the Relative DVARS as well. 
+            [DVARS_Z   , DVARS_Stat_Z   ] = DVARSCalc(Y,'TestMeth','Z'  , 'WhichExpVal',3 , 'TransPower',1  , 'VarRobIQR','hIQR' , 'gsrflag',gsrflag , InstyNrm{1},InstyNrm{2} , 'verbose',1 ,'RDVARS');
             
             
             %f_hndl=figure('position',[50,500,1600,500]); hold on;
