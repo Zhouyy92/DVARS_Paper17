@@ -1,7 +1,8 @@
 % This script produce Figure 4.
 %
 % NB! the two subjects which were used on the table are 8th and 6th element
-% of the SubList below. 
+% of the SubList below. Note that this function also saves you the ANOVE
+% DSE tables in the same directory.
 %
 % SA, UoW, 2017
 % srafyouni@gmail.com 
@@ -20,6 +21,13 @@ clear
 %Addpath /AuxDraw available on the same repository
 addpath ~/DVARS_Paper17/AuxDraw
 addpath ~/DVARS_Paper17/AuxDraw/concentricplots
+
+% You need to clone the DVARS directory:
+% https://github.com/asoroosh/DVARS.git
+% and addpath the directory (+ subfolders)
+
+%addpath ~/DVARS/
+%addpath ~/DVARS/Nifti_Util
 
 Site={'HCP'};
 SubList={'100307','103414','105115','111312','113619','115320','117122','118730','123117','151526','187345','303624','132118','901139','171330','263436','191336','779370','195041','145127','172029'};
