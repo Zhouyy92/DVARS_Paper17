@@ -10,10 +10,31 @@ function fMRIDiag_plot_4paper(V,varargin)
 %
 %
 
-FDflag  = 0;  AbsMovflag = 0;  BOLDFlag  = 0;  Idx     = [];
+% Col     = get(groot,'defaultAxesColorOrder');
+% Acol    = Col(5,:); % Green
+% FDcol   = Col(2,:); % Red (/orange!)
+% Dcol    = Col(1,:); % Blue
+% Scol    = Col(3,:); % Yellow
+% Ecol    = Col(4,:); % Purple
+
+FaceAlpha=0.2;
+
+Col=get(groot,'defaultAxesColorOrder');
+Acol=Col(5,:); % Green
+%FDcol=Col(2,:); % Red (/orange!)
+FDcol=[.5 .5 .5];
+Dcol=Col(1,:); % Blue
+Scol=Col(3,:); % Yellow
+Ecol=Col(4,:); % Purple
+
+FDflag  = 0;  AbsMovflag = 0;  BOLDFlag  = 0;  Idxs     = []; Idxp = [];
 md      = []; scl        = []; verbose   = 1;  gsrflag = 0;
 nsp     = 14; lw         = 2;  lfs       = 12;
 TickScaler = 1; Thickness = 1; GrandMean = 100;
+
+IdxpCol     = Col(2,:);
+IdxsCol     = [.5 .5 .5];
+
 if sum(strcmpi(varargin,'gsrflag'))
    gsrflag      =   varargin{find(strcmpi(varargin,'gsrflag'))+1};
 end
@@ -31,8 +52,11 @@ if sum(strcmpi(varargin,'AbsMov'))
    AbsMov     =   varargin{find(strcmpi(varargin,'AbsMov'))+1};
    AbsMovflag =   1;
 end
-if sum(strcmpi(varargin,'idx'))
-   Idx     =   varargin{find(strcmpi(varargin,'idx'))+1};
+if sum(strcmpi(varargin,'Stat_Idx'))
+   Idxs     =   varargin{find(strcmpi(varargin,'Stat_Idx'))+1};
+end
+if sum(strcmpi(varargin,'Pract_Idx'))
+   Idxp     =   varargin{find(strcmpi(varargin,'Pract_Idx'))+1};
 end
 if sum(strcmpi(varargin,'BOLD'))
    Y        =   varargin{find(strcmpi(varargin,'BOLD'))+1};
@@ -76,14 +100,6 @@ if sum(strcmpi(varargin,'Thick'))
 end
 %###################################################################################
 
-Col=get(groot,'defaultAxesColorOrder');
-Acol=Col(5,:); % Green
-%FDcol=Col(2,:); % Red (/orange!)
-FDcol=[.5 .5 .5];
-Dcol=Col(1,:); % Blue
-Scol=Col(3,:); % Yellow
-Ecol=Col(4,:); % Purple
-
 T=length(V.Avar_ts);
 Time=1:T;
 ds_bnd=1:T-1;
@@ -111,8 +127,6 @@ if  FDflag
     hold on; box on;
     yyaxis left
         plot(hTime,FDts,'color','k','linestyle','-','linewidth',lw-0.5)
-        plot(hTime,ones(1,T-1)*0.5,'linewidth',lw,'linestyle','-.','color','r')
-        plot(hTime,ones(1,T-1)*0.2,'linewidth',lw,'linestyle','-.','color','r')
         
         if max(FDts)>0.6
             ylim([0 max(FDts)+0.1]);
@@ -123,9 +137,19 @@ if  FDflag
         ylabel('FD (mm)','fontsize',lfs,'interpreter','latex','color','k');
         %axis tight;
         
-        PatchMeUp(Idx,Thickness);
+        PatchMeUp0(setdiff(Idxs,Idxp),Idxp,Thickness,IdxsCol,IdxpCol,FaceAlpha,sph0);
         
-        set(sph0,'ygrid','on','xticklabel',[],'xlim',[1 T],'ytick',[0.2 0.5],'ycolor','k')
+        %PatchMeUp(setdiff(Idxs,Idxp),Thickness,IdxsCol,FaceAlpha);
+        %PatchMeUp(Idxp,Thickness,IdxpCol,FaceAlpha);
+    
+        set(sph0,'ygrid','on','xticklabel',[],'xlim',[1 T],'ycolor','k')
+        
+        if max(FDts)<1
+            plot(hTime,ones(1,T-1)*0.5,'linewidth',lw,'linestyle','-.','color','r')
+            plot(hTime,ones(1,T-1)*0.2,'linewidth',lw,'linestyle','-.','color','r')
+            set(sph0,'ytick',[0.2 0.5]);
+        end
+        
         if AbsMovflag
             yyaxis right
                 plot(Time,AbsMov(:,1),'color',FDcol+[0.1,0.3,0.3],'linestyle','-','linewidth',lw-0.9)
@@ -153,11 +177,13 @@ yyaxis(sph1,'left')
     line(hTime,ones(1,T-1).*mean(sqrt(V.Svar_ts)),'LineStyle',':','linewidth',.5,'color',Scol)
     
     line(eTime,sqrt(V.Evar_ts),'LineStyle','none','Marker','o','markerfacecolor',Ecol,'linewidth',3,'color',Ecol)
-    ylabel('$\sqrt{\mathrm{Variance}}$','fontsize',lfs,'interpreter','latex')  
+    ylabel('$\sqrt{\mathrm{Variability}}$','fontsize',lfs,'interpreter','latex')  
     YLim2=ylim.^2/mean(V.Avar_ts)*100;
     set(sph1,'ycolor','k','xlim',[1 T])
 yyaxis(sph1,'right')
-    YTick2=PrettyTicks(YLim2,TickScaler); YTick=sqrt(YTick2);
+    %YTick2=PrettyTicks(YLim2,TickScaler); 
+    YTick2=PrettyTicks0(YLim2);
+    YTick=sqrt(YTick2);
     set(sph1,'XTick',[],'Ylim',sqrt(YLim2),'YTick',sqrt(YTick2),'YtickLabel',num2str([YTick2']));
     ylabel('\% of A-var','fontsize',lfs,'interpreter','latex')
     %set(sph2,'ygrid','on')
@@ -165,7 +191,11 @@ yyaxis(sph1,'right')
     set(h,'linestyle','-','color',[.5 .5 .5]); %the grids!
     set(sph1,'ycolor','k','xlim',[1 T])
     
-PatchMeUp(Idx,Thickness);
+    %PatchMeUpLine(setdiff(Idxs,Idxp),Idxp,Thickness,IdxsCol,IdxpCol,trans,sph3);
+    PatchMeUp0(setdiff(Idxs,Idxp),Idxp,Thickness,IdxsCol,IdxpCol,FaceAlpha,sph1);
+    
+    %PatchMeUp(setdiff(Idxs,Idxp),Thickness,IdxsCol,IdxpCol,FaceAlpha,sph1);
+    %PatchMeUp(Idxp,Thickness,IdxpCol,IdxpCol,FaceAlpha);
 
 %---------------------------Global%---------------------------
 sph2=subplot(nsp,1,[12 13]); 
@@ -187,7 +217,8 @@ hold on; box on;
     stps=abs(round(diff([mx_cntrd_g_ts mn_cntrd_g_ts])./3,1));
     Ytcks=round(min(cntrd_g_ts):stps:max(cntrd_g_ts),2);
     
-    ylabel('A$_{Gt}$','fontsize',lfs,'interpreter','latex')
+    %ylabel('A$_{Gt}$','fontsize',lfs,'interpreter','latex')
+    ylabel('G$_{\mathrm{A}t}$','fontsize',lfs,'interpreter','latex')
     %axis tight
     %set(sph2,'ycolor','k')
     %Ylim=ylim; Ylim=mean(Ylim)+0.5*[-1,1]*diff(Ylim)*2; ylim(Ylim)
@@ -198,7 +229,9 @@ hold on; box on;
     ytickformat('%,.2f')
     
 axis tight
-PatchMeUp(Idx,Thickness);
+    PatchMeUp0(setdiff(Idxs,Idxp),Idxp,Thickness,IdxsCol,IdxpCol,FaceAlpha,sph2);
+    %PatchMeUp(setdiff(Idxs,Idxp),Thickness,IdxsCol,FaceAlpha);
+    %PatchMeUp(Idxp,Thickness,IdxpCol,FaceAlpha);
 %---------------------------The big dude%---------------------------
 if BOLDFlag
     if ~isnumeric(Y) && size(Y,1)<=size(Y,2); error('Unknown BOLD intensity image!'); end
@@ -357,25 +390,25 @@ end
 set(gcf,'color','w');
 return
 %###################################################################################
-function ph=PatchMeUp(Idx,varargin)
-%   Draws a patch across the significantly identified scans on var plots
-%
-%   SA, 2017, UoW
-%   srafyouni@gmail.com
-if nargin == 1
-    stpjmp=1;
-elseif nargin == 2
-    stpjmp=varargin{1};
-end
-
-yyll=ylim;
-for ii=1:numel(Idx)
-    xtmp=[Idx(ii)-stpjmp   Idx(ii)-stpjmp   Idx(ii)+stpjmp  Idx(ii)+stpjmp];
-    ytmp=[yyll(1)               yyll(2)         yyll(2)        yyll(1)    ];
-    ph(ii)=patch(xtmp,ytmp,[.5 .5 .5],'FaceAlpha',0.3,'edgecolor','none');
-    clear *tmp
-end
-return 
+% function ph=PatchMeUp(Idx,varargin)
+% %   Draws a patch across the significantly identified scans on var plots
+% %
+% %   SA, 2017, UoW
+% %   srafyouni@gmail.com
+% if nargin == 1
+%     stpjmp=1;
+% elseif nargin == 2
+%     stpjmp=varargin{1};
+% end
+% 
+% yyll=ylim;
+% for ii=1:numel(Idx)
+%     xtmp=[Idx(ii)-stpjmp   Idx(ii)-stpjmp   Idx(ii)+stpjmp  Idx(ii)+stpjmp];
+%     ytmp=[yyll(1)               yyll(2)         yyll(2)        yyll(1)    ];
+%     ph(ii)=patch(xtmp,ytmp,[.5 .5 .5],'FaceAlpha',0.3,'edgecolor','none');
+%     clear *tmp
+% end
+% return 
 %###################################################################################
 function gsrY=fcn_GSR(Y)
 %Global Signal Regression

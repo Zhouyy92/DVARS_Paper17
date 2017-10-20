@@ -17,9 +17,7 @@
 %
 
 clear; 
-
 Site={'HCP'};
-
 %ModeList={'Unproc','Pre_Fix','Post_Fix'};
 ModeList={'Pre_Fix','Post_Fix'};
 
@@ -44,12 +42,16 @@ TestMeth={'X2_m3d3'}; %'X2_m3d1' 'X2_m1d1' 'Z'
 %addpath ~/DVARS_Paper17/AuxDraw
 %addpath ~/DVARS_Paper17/AuxDraw/concentricplots
 
+addpath /Users/sorooshafyouni/Home/matlab/Ext/cifti-matlab-master
+
 % You need to clone the DVARS directory:
 % https://github.com/asoroosh/DVARS.git
 % and addpath the directory (+ subfolders)
 
 %addpath ~/DVARS/
 %addpath ~/DVARS/Nifti_Util
+
+addpath /Users/sorooshafyouni/Home/GitClone/DVARS/Nifti_Util
 
 for g=GSRStatList
     for s=SubList
@@ -58,7 +60,7 @@ for g=GSRStatList
 
             disp(['#-------------' s{1} ' -- ' m{1} ' -- ' g{1}])
 
-            read_dir=['R/' Site{1} '_' s{1} '_fMRIDiag'];
+            read_dir=['/Users/sorooshafyouni/Home/DVARS/fMRIDiag/' Site{1} '/R/' Site{1} '_' s{1} '_fMRIDiag'];
             if exist(read_dir,'dir')~=7; error('Dir doesnt exists!'); end;
 
             CIFTIrt=['/Volumes/HCP_S900/HCP_10Unrel_Vols/' s{1} '/' s{1} '/MNINonLinear/Results/rfMRI_REST1_LR'];
@@ -95,16 +97,19 @@ for g=GSRStatList
             I0=size(V2,1); T0=size(V2,2);
             Y=V2; clear V2 V1; 
             %
-            load([read_dir '/' Site{1} '_' s{1} '_' g{1} '_' m{1} '_Council_Test.mat']);
+            load([read_dir '/' Site{1} '_' s{1} '_' g{1} '_' m{1} '_Council.mat']);
             %[FDts,FD_Stat]=FDCalc(MovPar);
             
             pvals  = eval(['DVARS_Stat_' TestMeth{1} '.pvals']);
-            Idx=find(pvals<(0.05./(T0-1)));
+            Idxs=find(pvals<(0.05./(T0-1)));
+            
+            DpDvar  = eval(['DVARS_Stat_' TestMeth{1} '.DeltapDvar']);
+            Idxp   = find(pvals<(0.05./(T0-1)) & DpDvar>5);
             
             if      contains(TestMeth{1},'X2')
-                NDVARS = eval(['DVARS_Stat_' TestMeth{1} '.NDVARS_X2']);
+                NDVARS = eval(['DVARS_Stat_' TestMeth{1} '.SDVARS_X2']);
             elseif  contains(TestMeth{1},'Z')
-                NDVARS = eval(['DVARS_Stat_' TestMeth{1} '.NDVARS_Z']);
+                NDVARS = eval(['DVARS_Stat_' TestMeth{1} '.SDVARS_Z']);
             else
                 error('Unknown test method: choose btwn: X2d3, X2d1, Z');
             end
@@ -118,12 +123,12 @@ for g=GSRStatList
             %BOLDImgPan(Y,'scale',1/100,'destdir',read_dir,'handle',f_hndl,'FD',FDts,'DVARS',NDVARS,'ColRng',ColRng,'prefix',prefix,'Idx',Idx);
             
             %'AbsMov',[FD_Stat.AbsRot FD_Stat.AbsTrans]
-            fMRIDiag_plot_4paper(V,'GrandMean',mean(V.MeanOrig),'TickScaler',TickScaler,'bold',Y,'ColRng',ColRng,'FD',FDts,'scale',1/100,'gsrflag',gsrflag,'Idx',Idx,'handle',f_hndl,'fontsize',14,'linewidth',1.2)
+            fMRIDiag_plot_4paper(V,'TickScaler',TickScaler,'bold',Y,'ColRng',ColRng,'FD',FDts,'scale',1/100,'gsrflag',gsrflag,'Stat_Idx',Idxs,'Pract_Idx',Idxp,'handle',f_hndl,'fontsize',14,'linewidth',1.2)
             
             hold off; 
             
             prefix=[s{1} '_' m{1} '_' TestMeth{1}];
-            %export_fig(f_hndl,['fMRIDiag_' gsrflagstr '_ColRng' num2str(ColRng(2)) '_' prefix '.pdf'])
+            export_fig(f_hndl,['Figs/fMRIDiag_' gsrflagstr '_ColRng' num2str(ColRng(2)) '_' prefix '_N.pdf'])
             
             %close all
             clear Y prefix I0 T0 f_hndl V FDts MovPar *FD* DVARS_* *Stat* pvals NDVARS

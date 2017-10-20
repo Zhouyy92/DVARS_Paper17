@@ -1,14 +1,14 @@
 %function ph=PatchMeUp(Idx,varargin)
-function PatchMeUp(Idxs,Idxp,stpjmp,sLcol,pLcol,faceAlpha,ax_hndl)
+function PatchMeUp0(Idxs,Idxp,stpjmp,sLcol,pLcol,faceAlpha,ax_hndl)
 % setdiff(Idxs,Idxp),Idxp,PtchWdth,trans,sph5
 % ph=PatchMeUp(Idx,varargin)
 % patch around the significantly detected spikes.
 %
 % SA, NISOx, 2017
 
-Pos=get(ax_hndl,'position');
-set(ax_hndl,'Color','none')
-PatchAx=axes('position',Pos,'visible','on','Ytick',[],'Xtick',[]);
+%Pos=get(ax_hndl,'position');
+%set(ax_hndl,'Color','none')
+%PatchAx=axes('position',Pos,'visible','on','Ytick',[],'Xtick',[]);
 yLm=ylim;
 
 %ph0=[];%ED
@@ -27,7 +27,7 @@ for ii=1:numel(Idxp)
      clear *tmp
 end
 
-uistack(PatchAx,'bottom')
+%uistack(PatchAx,'bottom')
 
 %FOR SIMPLE LINES, USE BELOW LINES:
 %faceAlpha=1;
